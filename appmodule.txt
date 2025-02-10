@@ -1,0 +1,52 @@
+app-module main.tf file
+
+resource "aws_instance" "app" {
+  ami                    = var.my_ami
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [aws_security_group.my-appsg.id]
+  subnet_id              = var.app-subnet
+  associate_public_ip_address = true
+  tags = {
+    Name = "appserver"
+  }
+  key_name = "my-tf-key"
+}
+resource "aws_security_group" "my-appsg" {
+  name   = "my-appsg"
+  vpc_id = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    cidr_blocks = ["10.0.0.0/16"]
+    from_port   = 22
+    protocol    = "tcp"
+    to_port     = 22
+  }
+  ingress {
+    cidr_blocks = ["10.0.0.0/20"]
+    from_port   = 9000
+    protocol    = "tcp"
+    to_port     = 9000
+  }
+}
+
+----------------------------------------------
+
+app-module variables.tf file
+
+variable "my_ami" {
+  type    = string
+  default = "put your ami-id"
+}
+variable "instance_type" {
+  type = string
+  default = "t2.micro"
+}
+variable "vpc_id" { }
+variable "app-subnet" { 
+   type = string
+}   
