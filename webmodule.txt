@@ -1,0 +1,53 @@
+webmodule main.tf file
+
+resource "aws_instance" "web" {
+
+  ami                         = var.my_ami
+  instance_type               = var.instance_type
+  vpc_security_group_ids      = [aws_security_group.my-websg.id]
+  subnet_id                   = var.web-subnet
+  associate_public_ip_address = true
+  tags = {
+    Name = "webserver"
+  }
+  key_name = "my-tf-key"
+}
+resource "aws_security_group" "my-websg" {
+  name   = "my-websg"
+  vpc_id = var.vpc_id
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 22
+    protocol    = "tcp"
+    to_port     = 22
+  }
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 80
+    protocol    = "tcp"
+    to_port     = 80
+  }
+}
+
+----------------------------------------------
+
+webmodule variables.tf file
+
+variable "my_ami" {
+  type    = string
+  default = "put your ami-id"
+}
+variable "instance_type" {
+  type = string
+  default = "t2.micro"
+}
+variable "vpc_id" { }
+variable "web-subnet" { 
+  type = string
+}
